@@ -48,31 +48,63 @@ public class RotateImage {
     }
   }
 
+  // rotate layer by layer ( move each cell on each layer sequentially)
+  public void rotate3(int[][] matrix) {
+    int n = matrix.length;
+    for (int layer = 0; layer < n / 2; layer++) {
+      int first = layer;
+      int last = n - 1 - first;
+
+      for (int i = first; i < last; i++) {
+        int top = matrix[first][i]; // keep the first position swap
+        int offset = i - first;
+
+        matrix[first][i] = matrix[last - offset][first]; // left -> top
+        matrix[last - offset][first] = matrix[last][last - offset]; // bottom -> left
+        matrix[last][last - offset] = matrix[i][last]; // right -> bottom
+        matrix[i][last] = top;
+      }
+    }
+  }
+
   public static void main(String[] args) {
     RotateImage sol = new RotateImage();
-    int[][] matrix = {
+    // int[][] matrix = {
+    // { 1, 2, 3 },
+    // { 4, 5, 6 },
+    // { 7, 8, 9 }
+    // };
+    // sol.rotate(matrix);
+    // for (int[] matrix1 : matrix) {
+    // for (int j = 0; j < matrix[0].length; j++) {
+    // System.out.print(matrix1[j] + " ");
+    // }
+    // System.out.println();
+    // }
+
+    // int[][] matrix2 = {
+    // { 5, 1, 9, 11 },
+    // { 2, 4, 8, 10 },
+    // { 13, 3, 6, 7 },
+    // { 15, 14, 12, 16 }
+    // };
+    // sol.rotate(matrix2);
+    // for (int[] ele : matrix2) {
+    // for (int j = 0; j < matrix2[0].length; j++) {
+    // System.out.print(ele[j] + " ");
+    // }
+    // System.out.println();
+    // }
+
+    int[][] matrix3 = {
         { 1, 2, 3 },
         { 4, 5, 6 },
         { 7, 8, 9 }
     };
-    sol.rotate(matrix);
-    for (int[] matrix1 : matrix) {
-      for (int j = 0; j < matrix[0].length; j++) {
-        System.out.print(matrix1[j] + " ");
-      }
-      System.out.println();
-    }
-
-    int[][] matrix2 = {
-        { 5, 1, 9, 11 },
-        { 2, 4, 8, 10 },
-        { 13, 3, 6, 7 },
-        { 15, 14, 12, 16 }
-    };
-    sol.rotate(matrix2);
-    for (int[] ele : matrix2) {
-      for (int j = 0; j < matrix2[0].length; j++) {
-        System.out.print(ele[j] + " ");
+    sol.rotate3(matrix3);
+    for (int[] matrix31 : matrix3) {
+      for (int j = 0; j < matrix3[0].length; j++) {
+        System.out.print(matrix31[j] + " ");
       }
       System.out.println();
     }
