@@ -1,5 +1,7 @@
 
 public class RotateImage {
+
+  // transpose + reverse horizontally
   public void rotate(int[][] matrix) {
     int n = matrix.length;
     var temp = 0;
@@ -25,6 +27,27 @@ public class RotateImage {
     }
   }
 
+  // reverse vertically + transpose
+  public void rotate2(int[][] matrix) {
+    int n = matrix.length;
+
+    // reverse vertically
+    for (int i = 0; i < n / 2; i++) {
+      var temp = matrix[i];
+      matrix[i] = matrix[n - 1 - i];
+      matrix[n - 1 - i] = temp;
+    }
+
+    // transpose
+    for (int idx = 0; idx < matrix.length; idx++) {
+      for (int j = idx + 1; j < matrix.length; j++) {
+        var temp = matrix[idx][j];
+        matrix[idx][j] = matrix[j][idx];
+        matrix[j][idx] = temp;
+      }
+    }
+  }
+
   public static void main(String[] args) {
     RotateImage sol = new RotateImage();
     int[][] matrix = {
@@ -36,6 +59,20 @@ public class RotateImage {
     for (int[] matrix1 : matrix) {
       for (int j = 0; j < matrix[0].length; j++) {
         System.out.print(matrix1[j] + " ");
+      }
+      System.out.println();
+    }
+
+    int[][] matrix2 = {
+        { 5, 1, 9, 11 },
+        { 2, 4, 8, 10 },
+        { 13, 3, 6, 7 },
+        { 15, 14, 12, 16 }
+    };
+    sol.rotate(matrix2);
+    for (int[] ele : matrix2) {
+      for (int j = 0; j < matrix2[0].length; j++) {
+        System.out.print(ele[j] + " ");
       }
       System.out.println();
     }
