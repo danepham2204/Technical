@@ -137,3 +137,5 @@ void arraycopy(Object src, int srcPos, Object dest, int destPos, int length) {
 - Implementation khác nhau giữa các JVM (HotSpot, OpenJ9, etc.)
 - Để hiểu sâu cần kiến thức về C/C++ và JVM internals
 
+
+

@@ -242,3 +242,5 @@ memmove copies to temp buffer first:
 - For object arrays: Still faster + handles type checking
 - The larger the array, the bigger the performance gain (up to a point)
 
+
+
