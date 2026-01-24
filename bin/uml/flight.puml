@@ -1,0 +1,15 @@
+@startuml
+actor User
+rectangle "Client App" as Client
+rectangle "API Gateway" as Gateway
+rectangle "Flight Search Service" as Service
+database "DB (PostgreSQL)" as DB
+rectangle "External GDS (Amadeus)" as GDS
+
+User --> Client
+Client --> Gateway : POST /api/v1/search-flights
+Gateway --> Service : Validate & Route
+Service --> DB : Query Airports & Flights
+Service --> GDS : Fetch Real-Time Data
+Service --> Gateway : Response with Offers
+@enduml
