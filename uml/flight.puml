@@ -6,10 +6,35 @@ rectangle "Flight Search Service" as Service
 database "DB (PostgreSQL)" as DB
 rectangle "External GDS (Amadeus)" as GDS
 
-User --> Client
+User --> Client 
 Client --> Gateway : POST /api/v1/search-flights
 Gateway --> Service : Validate & Route
 Service --> DB : Query Airports & Flights
 Service --> GDS : Fetch Real-Time Data
 Service --> Gateway : Response with Offers
+@enduml
+
+@startuml
+entity Airport {
+  + id: int
+  + iataCode: string
+  + name: string
+}
+entity FlightSegment {
+  + id: int
+  + flightNumber: string
+  + departureAirport: FK
+  + arrivalAirport: FK
+  + departureTime: datetime
+  + price: number
+}
+entity Itinerary {
+  + id: string
+  + totalDuration: string
+  + totalPrice: number
+}
+
+Airport ||--o{ FlightSegment : departure
+Airport ||--o{ FlightSegment : arrival
+Itinerary ||--|{ FlightSegment : segments
 @enduml
