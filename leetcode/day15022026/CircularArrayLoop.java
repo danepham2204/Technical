@@ -79,7 +79,6 @@ public class CircularArrayLoop {
         fast = getNext(nums, getNext(nums, fast));
       }
 
-      nums[slow] = 0;
     }
 
     return false;
@@ -88,8 +87,6 @@ public class CircularArrayLoop {
   // this method has two missions: stop the loop when visited (= 0), and check is
   // same direction
   public boolean isSameDirection(int val, boolean lastDirection) {
-    if (val == 0)
-      return false;
     return (val > 0) == lastDirection;
   }
 
@@ -97,25 +94,78 @@ public class CircularArrayLoop {
     return (((idx + nums[idx]) % nums.length) + nums.length) % nums.length;
   }
 
+  public int[] testLongDeadEnd() {
+    int[] nums = new int[5000];
+    // Create a path: 0 -> 1 -> 2 -> ... -> 4999
+    for (int i = 0; i < 5000; i++) {
+      nums[i] = 1;
+    }
+
+    nums[4999] = 5000;
+
+    return nums;
+  }
+
+  public int[] testManyDisjointLongChains() {
+    int n = 5000;
+    int[] nums = new int[n];
+
+    // Create ~50 disjoint chains, each ~100 long
+    int chainLen = 100;
+    int numChains = n / chainLen;
+
+    for (int c = 0; c < numChains; c++) {
+      int start = c * chainLen;
+      for (int i = 0; i < chainLen - 1; i++) {
+        nums[start + i] = 1; // forward inside chain
+      }
+      // end of chain points to itself → self-loop
+      nums[start + chainLen - 1] = 1; // or any k where (pos + k) % n == pos
+    }
+
+    return nums;
+  }
+
   public static void main(String[] args) {
     CircularArrayLoop sol = new CircularArrayLoop();
-    // System.out.println(sol.circularArrayLoop(new int[] { 2, -1, 1, 2, 2 })); //
-    // true
-    // System.out.println(sol.circularArrayLoop(new int[] { 1, 1, 1, 1, 1 })); //
-    // true
-    // System.out.println(sol.circularArrayLoop(new int[] { -1, -2, -3, -4, -5, 6
-    // })); // false
-    // System.out.println(sol.circularArrayLoop(new int[] { 1, -1, 5, 1, 4 })); //
-    // true
-    // System.out.println(sol.circularArrayLoop(new int[] { -1, -2, -3, -4, -5 }));
-    // // false
 
-    System.out.println(sol.circularArrayLoopUsingTwoPointers(new int[] { 2, -1, 1, 2, 2 }));
-    System.out.println(sol.circularArrayLoopUsingTwoPointers(new int[] { 1, 1, 1, 1, 1 })); // true
-    System.out.println(sol.circularArrayLoopUsingTwoPointers(new int[] { -1, -2, -3, -4, -5, 6
-    })); // false
-    System.out.println(sol.circularArrayLoopUsingTwoPointers(new int[] { 1, -1, 5, 1, 4 })); // true
-    System.out.println(sol.circularArrayLoopUsingTwoPointers(new int[] { -1, -2, -3, -4, -5 })); // false
+    long start = System.nanoTime();
 
+    boolean result = sol.circularArrayLoopUsingTwoPointers(sol.testLongDeadEnd());
+
+    long end = System.nanoTime();
+
+    long durationNs = end - start;
+    double durationMs = durationNs / 1_000_000.0;
+    double durationSec = durationNs / 1_000_000_000.0;
+
+    System.out.printf("Result: %b   Time: %,d ns  (%,.3f ms)  (%.6f s)%n",
+        result, durationNs, durationMs, durationSec);
   }
+
+  // System.out.println(sol.circularArrayLoop(new int[] { 2, -1, 1, 2, 2 })); //
+  // true
+  // System.out.println(sol.circularArrayLoop(new int[] { 1, 1, 1, 1, 1 })); //
+  // true
+  // System.out.println(sol.circularArrayLoop(new int[] { -1, -2, -3, -4, -5, 6
+  // })); // false
+  // System.out.println(sol.circularArrayLoop(new int[] { 1, -1, 5, 1, 4 })); //
+  // true
+  // System.out.println(sol.circularArrayLoop(new int[] { -1, -2, -3, -4, -5 }));
+  // // false
+
+  // System.out.println(sol.circularArrayLoopUsingTwoPointers(new int[] { 2, -1,
+  // 1, 2, 2 }));
+  // System.out.println(sol.circularArrayLoopUsingTwoPointers(new int[] { 1, 1, 1,
+  // 1, 1 })); // true
+  // System.out.println(sol.circularArrayLoopUsingTwoPointers(new int[] { -1, -2,
+  // -3, -4, -5, 6
+  // })); // false
+  // System.out.println(sol.circularArrayLoopUsingTwoPointers(new int[] { 1, -1,
+  // 5, 1, 4 })); // true
+  // System.out.println(sol.circularArrayLoopUsingTwoPointers(new int[] { -1, -2,
+  // -3, -4, -5 })); // false
+  // System.out.println(sol.circularArrayLoopUsingTwoPoiters(new int[] {-3, -1
+  // })); // true
+
 }
