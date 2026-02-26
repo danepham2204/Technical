@@ -59,4 +59,5 @@ public class StringCompression {
     System.out.println(sol.compress(test3));
     System.out.println(test3);
   }
+
 }
