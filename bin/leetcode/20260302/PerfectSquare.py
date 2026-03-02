@@ -38,12 +38,11 @@ class Solution:
         return res
 
 
-if __name__ == "__main__":
-    sol = Solution()
+sol = Solution()
 
-    # test_inputs = [12, 13, 16, 7]
-    test_inputs = [12, 13, 6, 7]
+# test_inputs = [12, 13, 16, 7]
+test_inputs = [12, 13, 6, 7]
 
-    for val in test_inputs:
-        result = sol.numSquares2(val)
-        print(f"Input: {val} | Result: {result}")
+for val in test_inputs:
+    result = sol.numSquares2(val)
+    print(f"Input: {val} | Result: {result}")
