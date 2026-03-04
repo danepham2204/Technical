@@ -1,3 +1,5 @@
+
+
 cudaError_t cudaMalloc(void **dev_Ptr, size_t size)
 CUDA runtime:
 - Ask GPU to allocate size bytes in device global memory (GPU)

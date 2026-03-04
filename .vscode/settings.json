@@ -1,0 +1,6 @@
+{
+	"java.debug.settings.onBuildFailureProceed": true,
+	"plantuml.commandArgs": [
+		"-DGRAPHVIZ_DOT=/opt/homebrew/bin/dot"
+	]
+}
