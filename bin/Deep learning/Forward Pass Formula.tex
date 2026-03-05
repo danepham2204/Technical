@@ -1,0 +1,36 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath} % CRITICAL: Required for bmatrix
+\usepackage{graphicx}
+
+\title{Mathematical Modeling of Neurons}
+\author{Minh Pham}
+\date{February 2026}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+This formula represents the forward pass of a dense layer using the dot product:
+
+\[
+\begin{bmatrix}
+w_{11} & w_{21} \\
+w_{12} & w_{22} \\
+w_{13} & w_{23} \\
+\end{bmatrix}
+\cdot
+\begin{bmatrix}
+i_1 \\
+i_2
+\end{bmatrix}
+=
+\begin{bmatrix}
+(w_{11} \times i_1) + (w_{21} \times i_2) \\
+(w_{12} \times i_1) + (w_{22} \times i_2) \\
+(w_{13} \times i_1) + (w_{23} \times i_2)
+\end{bmatrix}
+\]
+
+\end{document}
