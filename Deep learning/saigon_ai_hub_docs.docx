@@ -1,0 +1,40 @@
+PROPOSAL: OPEN-GEMM – Tối ưu hóa lõi tính toán ma trận trên GPU Thế Hệ Mới (A100/H100)
+I. Thông tin tổng quan
++ Tên dự án: *Rebuilding cuBLAS: Nghiên cứu Tối ưu Hóa GEMM Kernel trên GPU Thế Hệ Mới (A100/H100)*
++ Mô tả: Dự án nghiên cứu quá trình tối ưu hóa từng bước của CUDA GEMM kernel (General Matrix Multiplication) — phép nhân ma trận tổng quát, nền tảng của mọi mô hình deep learning. Xuất phát từ một implementation naive đến các kiến trúc tiên tiến như Tensor Core pipeline với cp.async (A100/SM80) và TMA + WGMMA (H100/SM90), dự án nhằm trả lời câu hỏi: điều gì thực sự giới hạn hiệu năng GPU và làm thế nào để tiếp cận giới hạn lý thuyết của phần cứng?
+Kết quả hiện tại (trên T4 GPU): 10 kernel hoàn chỉnh, đạt từ 465 GFLOP/s (Naive) lên 3,304 GFLOP/s (Vectorized Register Tiling). Giai đoạn tiếp theo cần A100 để triển khai cp.async hardware-async pipeline — em nghĩ đây là bước cần thiết quyết định để vượt qua "memory wall" và tiếp cận  throughput thực tế.
+
++ Thời gian thực hiện: 3 tháng.
+
+II. Xuất xứ & Sự cần thiết
+1. Xuất xứ
+Dự án đem lại nhu cầu làm chủ công nghệ tính toán song song (HPC) và tối ưu hóa hạ tầng AI. Hiện nay, cuBLAS là thư viện đóng (closed-source), gây khó khăn cho việc tùy biến các nhân tính toán (kernels) cho các tác vụ chuyên biệt như LLM Quantization hay Fused Operators (FlashAttention).
+2. Tính cần thiết
+Vấn đề: Các thư viện hiện tại thường là "hộp đen". Khi triển khai các mô hình AI khổng lồ, việc không thể can thiệp vào tầng tính toán thấp nhất dẫn đến lãng phí tài nguyên GPU (thường chỉ đạt 40-60% hiệu suất thực tế).
+Khoảng trống: Theo em thấy Việt Nam đang thiếu các nghiên cứu sâu về HPC (High-Performance Computing) và GPU Architecture. Việc làm chủ kỹ thuật tối ưu hóa trên A100 (dòng chip mạnh nhất hiện có tại nhiều Lab trong nước) là tối quan trọng để giảm chi phí vận hành AI, thêm vào đó việc hiểu sâu cuBLAS giúp Việt Nam không bị phụ thuộc vào các thư viện đóng khi xây dựng các hệ thống AI tùy chỉnh.
+
+
+III. Mục tiêu dự án
+Mục tiêu khoa học: Nghiên cứu và thực thi các kỹ thuật tối ưu hóa bộ nhớ (Shared Memory, Registers) và tính toán song song trên kiến trúc Ampere.
+Mục tiêu ứng dụng: Đạt hiệu suất tính toán TFLOP  tương đương hoặc tiệm cận với mục tiêu ít nhất > 90%  so với thư viện cuBLAS chính thức của NVIDIA trên các phép toán FP16/TF32.
+
+
+IV. Sản phẩm dự kiến
+1. Sản phẩm khoa học: 01 Bài báo nghiên cứu về kỹ thuật tối ưu hóa GPU Kernels gửi các hội đồng chuyên môn 
+2. Sản phẩm thử nghiệm: https://github.com/danepham2204/rebuilding-cublas
+
+V. Nội dung và Phương án triển khai
+1. Phương pháp phát triển
+Sử dụng CUDA C++ và các kỹ thuật:
++ Hierarchical Tiling: Chia nhỏ ma trận theo cấp độ Thread block, 	Warp và Thread
++ Double Buffering / Pipelining: Sử dụng lệnh cp.async của A100 để nạp dữ liệu từ Global Memory vào Shared Memory song song với quá trình tính toán.
++ Tensor Core Integration: Khai thác các lệnh mma.sync (Matrix Multiply-Accumulate) cấp thấp.
+2. Các bước triển khai
+- Xây dựng Baseline và phân tích Bottleneck trên kiến trúc A100.
+-  Thực hiện Benchmarking, viết báo cáo kỹ thuật và đóng gói thư viện.
+
+
+VI. Nguồn lực cần hỗ trợ từ Saigon AI Hub
++ Cơ sở vật chất: Em chỉ xin duy nhất 1 máy chủ có trang bị NVIDIA A100 GPU (hoặc ít nhất là 01 node A100 40GB/80GB) để thực hiện thực nghiệm và đo lường.
++ Kết nối: Em rất hân hạnh được giao lưu và học hỏi với các chuyên gia trong mạng lưới HPC của TP.HCM.
+
