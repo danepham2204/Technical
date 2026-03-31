@@ -57,13 +57,17 @@ Longer keep-alive times reduce cold-start frequency but increase background idle
 
 For each invocation, total energy decomposes as:
 
-$$E_{\text{total}} = E_{\text{work}} + E_{\text{overhead}} \tag{1}$$
+$$
+E_{\text{total}} = E_{\text{work}} + E_{\text{overhead}} \quad (1)
+$$
 
 where $E_{\text{work}}$ is the energy for useful computation, and $E_{\text{overhead}}$ aggregates energy from cold starts, container lifecycle operations, and idle intervals.
 
 If a task requires $F$ floating-point operations (FLOPs) on hardware with energy efficiency $\eta$ (FLOPs per joule), the ideal work energy is:
 
-$$E_{\text{work}} = \frac{F}{\eta} \tag{2}$$
+$$
+E_{\text{work}} = \frac{F}{\eta} \quad (2)
+$$
 
 For modern AI accelerators, $\eta$ is several orders of magnitude higher than CPUs, so the primary challenge becomes keeping $E_{\text{overhead}}$ small relative to $E_{\text{work}}$ — especially for short-running, fine-grained functions where the init cost dominates.
 
@@ -79,19 +83,25 @@ Let:
 
 The **energy overhead per cold start** is:
 
-$$E_{\text{cs}} = P_{\text{cs}} \cdot T_{\text{cs}} \tag{3}$$
+$$
+E_{\text{cs}} = P_{\text{cs}} \cdot T_{\text{cs}} \quad (3)
+$$
 
 ### Total cold-start energy across N invocations
 
 For $N$ total invocations, if a fraction $f$ of them experience cold starts, the total cold-start energy is:
 
-$$E_{\text{cs,total}} = f \cdot N \cdot E_{\text{cs}} = f \cdot N \cdot P_{\text{cs}} \cdot T_{\text{cs}} \tag{4}$$
+$$
+E_{\text{cs,total}} = f \cdot N \cdot E_{\text{cs}} = f \cdot N \cdot P_{\text{cs}} \cdot T_{\text{cs}} \quad (4)
+$$
 
 ### Relative cold-start overhead
 
 Let $\bar{E}_{\text{work}}$ be the average work energy per invocation. The **relative overhead** is:
 
-$$\rho_{\text{cs}} = \frac{E_{\text{cs,total}}}{N \cdot \bar{E}_{\text{work}}} = f \cdot \frac{E_{\text{cs}}}{\bar{E}_{\text{work}}} \tag{5}$$
+$$
+\rho_{\text{cs}} = \frac{E_{\text{cs,total}}}{N \cdot \bar{E}_{\text{work}}} = f \cdot \frac{E_{\text{cs}}}{\bar{E}_{\text{work}}} \quad (5)
+$$
 
 **Key insight:** For short or lightweight functions (small $\bar{E}_{\text{work}}$), $\rho_{\text{cs}}$ becomes large — cold-start energy dominates over useful work energy. This is the core problem with naive fine-grained serverless AI workloads.
 
@@ -128,25 +138,35 @@ Let:
 
 The **energy cost of keeping $k$ instances warm** over $T$:
 
-$$E_{\text{warm}} = k \cdot P_{\text{idle}} \cdot T \tag{6}$$
+$$
+E_{\text{warm}} = k \cdot P_{\text{idle}} \cdot T \quad (6)
+$$
 
 ### Expected cold-start cost without a warm pool
 
 With mean arrival rate $\lambda$ (invocations per second) and no warm pool (all invocations experience cold starts):
 
-$$E_{\text{cs,no-pool}} \approx \lambda \cdot T \cdot E_{\text{cs}} \tag{7}$$
+$$
+E_{\text{cs,no-pool}} \approx \lambda \cdot T \cdot E_{\text{cs}} \quad (7)
+$$
 
 ### Break-even condition
 
 The warm pool is **energy-efficient** when its cost is less than the cold-start cost it avoids:
 
-$$E_{\text{warm}} \le E_{\text{cs,no-pool}}$$
+$$
+E_{\text{warm}} \le E_{\text{cs,no-pool}}
+$$
 
-$$k \cdot P_{\text{idle}} \cdot T \le \lambda \cdot T \cdot E_{\text{cs}}$$
+$$
+k \cdot P_{\text{idle}} \cdot T \le \lambda \cdot T \cdot E_{\text{cs}}
+$$
 
 Simplifying (the $T$ cancels):
 
-$$\boxed{\lambda \ge \lambda_{\text{min}} = \frac{k \cdot P_{\text{idle}}}{E_{\text{cs}}}} \tag{8}$$
+$$
+\boxed{ \lambda \ge \lambda_{\text{min}} = \frac{k \cdot P_{\text{idle}}}{E_{\text{cs}}} } \quad (8)
+$$
 
 **Interpretation:**
 - When $\lambda \ge \lambda_{\text{min}}$: keeping $k$ warm instances saves energy — cold starts are more expensive than idle power.
@@ -165,7 +185,7 @@ Energy
   │
   └─────────────────────────────────────► λ (arrival rate)
          λ_min
-         
+
   Left of λ_min:  cold start cheaper → shut down warm pool
   Right of λ_min: warm pool cheaper  → keep instances warm
 ```
@@ -181,7 +201,9 @@ Serverless platforms can be approximated by **M/M/c queues** where:
 
 ### Utilization per instance
 
-$$\rho = \frac{\lambda}{c \cdot \mu} \tag{9}$$
+$$
+\rho = \frac{\lambda}{c \cdot \mu} \quad (9)
+$$
 
 The system is stable only when $\rho < 1$. If $\rho \to 1$, the queue grows unbounded and latency spikes.
 
@@ -189,7 +211,9 @@ The system is stable only when $\rho < 1$. If $\rho \to 1$, the queue grows unbo
 
 Energy has two components:
 
-$$E_{\text{total}}(c) = \underbrace{e_{\text{dyn}} \cdot \lambda \cdot T}_{\text{dynamic (active compute)}} + \underbrace{e_{\text{idle}} \cdot c \cdot T}_{\text{static (idle warm instances)}} \tag{10}$$
+$$
+E_{\text{total}}(c) = \underbrace{e_{\text{dyn}} \cdot \lambda \cdot T}_{\text{dynamic (active compute)}} + \underbrace{e_{\text{idle}} \cdot c \cdot T}_{\text{static (idle warm instances)}} \quad (10)
+$$
 
 where:
 - $e_{\text{dyn}}$ = energy per unit of service time (active compute),
@@ -214,7 +238,9 @@ This combines performance modeling with energy modeling, avoiding both over-prov
 
 If cold-start cost $E_{\text{cs}}$ is amortized over $B$ samples within a single invocation, the overhead per sample becomes:
 
-$$\rho_{\text{cs,per-sample}} = f \cdot \frac{E_{\text{cs}} / B}{\bar{E}_{\text{work,per-sample}}} \tag{11}$$
+$$
+\rho_{\text{cs,per-sample}} = f \cdot \frac{E_{\text{cs}} / B}{\bar{E}_{\text{work,per-sample}}} \quad (11)
+$$
 
 Increasing $B$ (batch size) directly reduces $\rho_{\text{cs,per-sample}}$, making each cold start cheaper relative to the useful work it enables.
 
@@ -239,11 +265,15 @@ Consider a Python-based data-preprocessing serverless function (AWS Lambda) that
 
 **Step 1 — Compute cold-start energy per event (from eq. 3):**
 
-$$E_{\text{cs}} = P_{\text{cs}} \cdot T_{\text{cs}} = 30 \times 0.4 = 12 \text{ J}$$
+$$
+E_{\text{cs}} = P_{\text{cs}} \cdot T_{\text{cs}} = 30 \times 0.4 = 12 \text{ J}
+$$
 
 **Step 2 — Compute break-even arrival rate for k=1 warm instance (from eq. 8):**
 
-$$\lambda_{\text{min}} = \frac{k \cdot P_{\text{idle}}}{E_{\text{cs}}} = \frac{1 \times 5}{12} \approx 0.42 \text{ req/s}$$
+$$
+\lambda_{\text{min}} = \frac{k \cdot P_{\text{idle}}}{E_{\text{cs}}} = \frac{1 \times 5}{12} \approx 0.42 \text{ req/s}
+$$
 
 **Step 3 — Decision rule:**
 
