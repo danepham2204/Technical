@@ -78,6 +78,74 @@ $$ E*{restore}(\psi) = E*{cs} \cdot (1 - \psi)^{\alpha} $$
 
 where $\alpha > 1$ represents a hardware-specific acceleration factor. This captures the efficiency of restoring memory-mapped tensor caches via mechanisms like CRIU (Checkpoint/Restore In Userspace) over a brutal full cold-boot from object storage.
 
+#### Why CRIU Makes α > 1 Physically Justified
+
+To understand why the restore cost is **non-linear**, we must contrast two fundamentally different restore paths.
+
+**Path A — Full Cold Boot (ψ = 0 → 1): the baseline E_cs**
+
+When a container is fully terminated, restoring it means re-executing every initialization step from scratch:
+
+```
+Step 1: Provision container + allocate GPU/CPU       ~300ms,  ~3J
+Step 2: Load Python runtime + ML dependencies        ~1.5s,   ~8J
+         (torch, CUDA kernels, numpy, transformers)
+Step 3: Download model weights from S3               ~8s,    ~40J
+         (e.g., 7GB LLaMA weights over network I/O)
+Step 4: Load weights into GPU VRAM over PCIe bus     ~3s,    ~15J
+Step 5: JIT-compile CUDA kernels (first inference)   ~3s,    ~10J
+─────────────────────────────────────────────────────────────────
+Total cold start:                                   ~16s,   ~76J
+```
+
+Every joule in Steps 2–5 is **redundant** if the model had not changed. The weights are identical — they are simply fetched again from scratch.
+
+---
+
+**Path B — CRIU Restore (ψ = 0.2 → 1): why it is cheaper**
+
+CRIU (Checkpoint/Restore In Userspace) is a Linux mechanism that takes a **complete memory snapshot** of a running process — every byte in RAM, every open file descriptor, every CUDA kernel state — and writes it to disk. On restore, it maps this snapshot back into memory directly.
+
+```
+What CRIU saves to NVMe when ψ drops to 0.2:
+┌────────────────────────────────────────────────┐
+│  Python heap + stack         (already loaded)  │
+│  PyTorch tensor allocations  (already loaded)  │
+│  CUDA kernel compiled state  (already compiled)│
+│  Model weights layout in VRAM (already placed) │
+│  Optimizer state             (already computed)│
+└────────────────────────────────────────────────┘
+         ↓  DMA write to NVMe SSD (~50ms)
+
+What CRIU does on restore (ψ = 0.2 → 1):
+┌────────────────────────────────────────────────┐
+│  mmap() the snapshot file                      │
+│  → OS maps NVMe pages into process address     │
+│    space using virtual memory — no copy yet    │
+│  → Pages loaded on-demand as GPU accesses them │
+│    (copy-on-access, not copy-on-restore)       │
+└────────────────────────────────────────────────┘
+         ↓  Resume in ~200ms, no S3 download
+```
+
+**Memory-mapped tensor caches** means the model weights are not copied — the OS page table points directly at the NVMe snapshot. The GPU pulls only the pages it needs, when it needs them, over the PCIe bus. Steps 2, 3, and 5 from the cold boot are **completely eliminated**.
+
+```
+CRIU restore from ψ = 0.2:
+Step 1: Re-provision container                       ~300ms,  ~3J
+Step 2: (SKIPPED — Python + deps already in snapshot)    0J
+Step 3: (SKIPPED — weights already in snapshot)          0J
+Step 4: mmap NVMe snapshot → GPU VRAM (on-demand)    ~200ms,  ~4J
+Step 5: (SKIPPED — CUDA kernels already compiled)        0J
+─────────────────────────────────────────────────────────────────
+Total CRIU restore:                                  ~500ms,  ~7J
+
+vs Full cold boot:                                   ~16s,   ~76J
+                                                     ↑ 30× faster, 10× cheaper
+```
+
+This physical reality — that most of the cold-start cost is in loading and compiling, not in execution — is precisely what forces $\alpha > 1$. A container at $\psi = 0.2$ has already paid for the expensive steps; it only needs to re-map memory. The restore cost does not scale linearly with $(1 - \psi)$; it collapses super-linearly as $\psi$ increases past the threshold where VRAM eviction is the only remaining cost.
+
 #### Origin and Mathematical Proof of the Restitution Equation
 
 The traditional binary model assumes a step function: $E_{restore}$ is either $0$ (if warm) or $E_{cs}$ (if cold). However, modern virtualization (e.g., Firecracker microVMs) and memory mapping allow for intermediate hibernation states.
