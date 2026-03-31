@@ -175,19 +175,37 @@ $$
 ### Visualizing the break-even
 
 ```
-Energy
-  │
-  │  E_cs,no-pool = λ·T·E_cs       ← grows with λ (more cold starts)
-  │         /
-  │        /
-  │       /  ← break-even point at λ_min
-  │______/___________  E_warm = k·P_idle·T   ← flat line (fixed idle cost)
-  │
-  └─────────────────────────────────────► λ (arrival rate)
-         λ_min
+ Energy (Joules)
+    │
+    │                                         ● E_B = λ·T·E_cs
+    │                                      ●    (cold start cost)
+    │                                   ●        grows linearly with λ
+    │                                ●
+    │                             ●
+ E_A│· · · · · · · · · ·● · · ● · · · · · · ·  E_A = k·P_idle·T
+    │              ●   ↑ break-even            (warm pool cost)
+    │           ●      λ_min                   flat — fixed regardless of λ
+    │        ●
+    │     ●
+    │  ●
+    │
+    └──────────────┬────────────────────────► λ (requests/sec)
+                 λ_min
 
-  Left of λ_min:  cold start cheaper → shut down warm pool
-  Right of λ_min: warm pool cheaper  → keep instances warm
+    ◄─────────────┤─────────────────────────►
+     COLD CHEAPER │    WARM CHEAPER
+     E_B < E_A    │    E_B > E_A
+     → scale to 0 │    → keep k instances warm
+```
+
+**Numerical example** (`k=1`, `P_idle=5W`, `E_cs=12J`):
+
+```
+λ_min = (1 × 5) / 12 ≈ 0.42 req/s
+
+  λ = 0.1  →  E_A = 5T,  E_B = 1.2T   →  E_B < E_A  → cold start wins
+  λ = 0.42 →  E_A = 5T,  E_B ≈ 5T     →  break-even point
+  λ = 1.0  →  E_A = 5T,  E_B = 12T    →  E_A < E_B  → warm pool wins
 ```
 
 ---
