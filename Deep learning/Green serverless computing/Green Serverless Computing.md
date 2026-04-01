@@ -2,9 +2,11 @@
 
 ## 1. Vision and Research Objective
 
-The explosive growth of large-language models and transformer architectures has made AI training one of the most carbon-intensive compute workloads globally. Traditional serverless computing provides fine-grained auto-scaling, but its underlying abstractions were designed for latency-sensitive microservices, not complex, stateful, and energy-hungry AI iteration loops.
+The explosive growth of large-language models and transformer architectures has made AI training one of the most carbon-intensive compute workloads globally. The fundamental problem is that current deployment strategies rely on rigid, fixed resource allocations that force massive GPU clusters to remain fully powered regardless of grid conditions or true utilization. This inflexibility leads to severe energy waste and unnecessarily high greenhouse gas emissions, as complex, stateful AI training loops cannot seamlessly pause or shrink during periods of high carbon intensity on the power grid.
 
-Our ambition is to architect a fundamentally new serverless orchestration layer that elevates **Carbon Intensity** and **Energy Elasticity** to first-class constraints. We aim to break away from the traditional binary "Warm vs. Cold" container lifecycle, replacing it with a continuous, hardware-aware degradation model. By coupling this with a physics-inspired scheduling mechanism, we seek to dynamically shift, compress, and scale AI workloads in perfect synchronization with grid carbon fluctuations, breaking the linear correlation between AI model complexity and data center carbon footprints.
+![Frontier AI Model Cost](frontier%20AI%20model%20cost.png)
+
+Our target is to architect a novel serverless orchestration layer that elevates **Carbon Intensity** and **Energy Elasticity** to first-class constraints. We aim to develop a physics-inspired scheduling mechanism capable of dynamically shifting, compressing, and scaling AI workloads in perfect synchronization with real-time grid carbon fluctuations. Ultimately, our target is to break the linear correlation between AI model complexity and data center carbon footprints, ensuring that the next generation of AI training is inherently resource-efficient and environmentally sustainable.
 
 ---
 

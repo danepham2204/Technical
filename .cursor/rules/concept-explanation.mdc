@@ -1,0 +1,31 @@
+---
+alwaysApply: true
+---
+
+# Concept Explanation Format
+
+When asked to explain any concept, always use exactly this 4-part structure:
+
+## 1. Broad View (Big Picture)
+
+- Where does this concept fit in the larger landscape of Mathematics / AI / Computer Systems / CUDA / GPU Computing?
+- What major problem does it solve?
+- Why is it important?
+
+## 2. Step-by-Step Breakdown / Core Components
+
+- Break the concept into its logical steps or key components
+- Explain the underlying mechanism in detail, including relevant mathematics
+- Use clear but precise language — avoid vagueness
+
+## 3. Concrete Example
+
+- Provide one specific, easy-to-understand example
+- Prioritize a Python code snippet if applicable
+- Use real numbers / before-and-after comparisons
+- If the concept relates to optimization or performance, clearly show the improvement
+
+## 4. Practical Impact (Real-World Application)
+
+- How does this concept optimize CUDA / Memory usage / Inference speed / Training performance / Throughput?
+- Include specific benefits, common use cases, and important implementation caveats
