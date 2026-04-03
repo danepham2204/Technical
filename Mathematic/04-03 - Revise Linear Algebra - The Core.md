@@ -109,6 +109,36 @@ Data often has too many dimensions (features). These concepts help us compress d
 *   **What it is:** A mathematical recipe that breaks *any* matrix down into three simpler matrices: a rotation, a stretching phase, and another rotation.
 *   **ML Context:** SVD is the engine used for recommendation systems (like Netflix recommending movies) and data compression. It exposes the hidden "latent features" inside a massive matrix of user-item ratings.
 
+### Deep Dive: Mathematical Formulas of SVD and PCA
+
+Mặc dù có khái niệm khác nhau, SVD và PCA có một "mối liên hệ sinh tử" về mặt toán học.
+
+**1. Công thức của SVD**
+SVD chứng minh rằng mọi ma trận $X$ đều có thể được phân rã thành tích của 3 ma trận:
+$$ X = U \Sigma V^T $$
+*   **$U$ (Left Singular Vectors):** Ma trận trực giao. Đại diện cho sự "quay" trong không gian các điểm dữ liệu (ví dụ: Users).
+*   **$\Sigma$ (Singular Values):** Ma trận đường chéo. Chứa mức độ "co giãn/quan trọng" của từng thành phần, xếp từ lớn nhất xuống bé nhất.
+*   **$V^T$ (Right Singular Vectors):** Ma trận trực giao. Đại diện cho sự "quay" trong không gian các đặc trưng (ví dụ: Features / Movies).
+
+**2. Công thức cốt lõi của PCA**
+Giả sử $X$ là ma trận dữ liệu **đã dời tâm về gốc (Mean-centered)**.
+*   **Bước 1:** PCA phải tính Ma trận Hiệp phương sai (Covariance Matrix) để xem các features biến thiên cùng nhau ra sao: 
+    $$ C = \frac{1}{n-1} X^T X $$
+*   **Bước 2:** Tính toán Eigenvectors ($W$) và Eigenvalues ($\Lambda$) của $C$:
+    $$ C = W \Lambda W^{-1} $$
+Các cột của $W$ chính là các **Principal Components** mà PCA đang muốn tìm.
+
+**3. Sự Kết Nối: Vì sao code PCA lại bí mật gọi SVD?**
+Nếu ta đem ném công thức $X = U \Sigma V^T$ vào bên trong phép tính $X^T X$ của PCA:
+$$ X^T X = (U \Sigma V^T)^T (U \Sigma V^T) $$
+$$ X^T X = V \Sigma^T U^T U \Sigma V^T $$
+Bởi vì $U$ là ma trận trực giao, theo luật toán học thì $U^T U = I$ (Ma trận đơn vị). Vậy ta khử được $U$:
+$$ X^T X = V \Sigma^2 V^T $$
+
+**Kết luận đắt giá:** 
+*   Phương trình cuối cùng cho thấy: Ma trận $V$ lấy ra từ SVD **hoàn toàn trùng khớp (giống hệt 100%)** với ma trận $W$ chứa các trục Principal Components của PCA!
+*   Thay vì chật vật tính toán ma trận khổng lồ $X^T X$ (vô cùng tốn RAM và dễ sai số nhỏ khi làm tròn trên máy tính), các thư viện như `scikit-learn` sử dụng chiến thuật "chạy thẳng thuật toán SVD lên bề mặt của $X$", bóc lấy $V$ và hoàn thành PCA cực nhanh gọn.
+
 ---
 
 ## 4. Interview Answers
